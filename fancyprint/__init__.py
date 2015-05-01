@@ -46,12 +46,28 @@ def printkv(key, val, sep=": ", fill=0, fill_char=" ", rounding=False):
     #-------------------------------------------------------------------------
     #                                                           Value Rounding
     #-------------------------------------------------------------------------
+    # Perform rounding if val is actually a float, and an integer value was
+    # provided for the rounding argument.
     if (type(val) == float) and (type(rounding) == int):
-        val = round(val, ndigits=rounding)
+        # Handle incorrect use of -ve numbers for rounding
+        if rounding < 0:
+            rounding = 0
+            print("WARNING: -ve rounding arguments in printkv() are treated ",
+                  "as a zero")
+            # TODO: learn how to throw a real warning message.
 
-    # If user specifies round to be True instead of an integer, then round to
-    # nearest whole number.
-    elif (type(val) == float) and (type(rounding) == bool) and round:
+        # Handle zeros. Zeros are treated separately from other integers,
+        # because if ndigits=0 is used as an argument to round(), it returns
+        # a number with .0 (eg 3.0), which gives a false sense of accuracy, and
+        # also you dont want decimal places at all.
+        if rounding == 0:
+            val = round(val)
+        else:
+            val = round(val, ndigits=rounding)
+
+    # If user specifies rounding to be True instead of an integer, then treat
+    # this as meaning that the intention is to round to the nearest whole number
+    elif (type(val) == float) and (type(rounding) == bool) and rounding:
         val = round(val)
 
     #-------------------------------------------------------------------------
@@ -62,5 +78,3 @@ def printkv(key, val, sep=": ", fill=0, fill_char=" ", rounding=False):
 
 if __name__ == '__main__':
     print("fancyprint")
-
-
